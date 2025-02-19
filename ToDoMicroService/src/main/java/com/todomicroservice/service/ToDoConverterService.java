@@ -5,8 +5,6 @@ import com.todomicroservice.dto.response.ToDoResponseDto;
 import com.todomicroservice.entity.ToDo;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ToDoConverterService {
