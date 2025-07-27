@@ -13,8 +13,3 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/api/todo/**
-          filters:
-            - RemoveRequestHeader=Authorization
-            - AddRequestHeader=Authorization, token
-
-
