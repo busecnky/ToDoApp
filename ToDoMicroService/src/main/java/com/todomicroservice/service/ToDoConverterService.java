@@ -20,6 +20,7 @@ public class ToDoConverterService {
         response.setId(todo.getId());
         response.setTitle(todo.getTitle());
         response.setCompleted(todo.isCompleted());
+        response.setUsername(todo.getUsername());
         return response;
     }
 }
