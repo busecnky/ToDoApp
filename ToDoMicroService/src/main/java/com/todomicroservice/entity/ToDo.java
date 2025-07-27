@@ -16,6 +16,7 @@ public class ToDo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String username;
     private String title;
     private boolean completed;
 }

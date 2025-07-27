@@ -8,8 +8,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ToDoConverterService {
-    public ToDo convertToToDo(ToDoRequestDto toDoRequestDto) {
+    public ToDo convertToToDo(String username, ToDoRequestDto toDoRequestDto) {
         ToDo toDo = new ToDo();
+        toDo.setUsername(username);
         toDo.setTitle(toDoRequestDto.getTitle());
         toDo.setCompleted(toDoRequestDto.isCompleted());
         return toDo;
