@@ -1,12 +1,11 @@
 package com.todomicroservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +18,9 @@ public class ToDo {
     private String username;
     private String title;
     private boolean completed;
+    private LocalDate createdDate;
+    private LocalDate updatedDate;
+    @ManyToOne
+    @JoinColumn(name = "todo_list_id")
+    private ToDoList toDoList;
 }

@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface ToDoRepository extends JpaRepository<ToDo, Long> {
     List<ToDo> findByUsername(String username);
     Optional<ToDo> findByIdAndUsername(Long id, String username);
+    List<ToDo> findAllByToDoList_Id(Long toDoListId);
 }
