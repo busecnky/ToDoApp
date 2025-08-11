@@ -21,11 +21,11 @@ This is a **microservice-based ToDo application** built with **Spring Boot**. It
 
 ## 📦 Services
 
-| Service           | Port  | Description                     |
-|-------------------|-------|---------------------------------|
-| API Gateway       | 8080  | Routes all incoming requests    |
-| Auth Microservice | 8081  | Handles login/register & tokens |
-| ToDo Microservice | 8082  | CRUD for to-do items (secured)  |
+| Service           | Port | Description                     |
+|-------------------|------|---------------------------------|
+| API Gateway       | 8080 | Routes all incoming requests    |
+| Auth Microservice | 8083 | Handles login/register & tokens |
+| ToDo Microservice | 8082 | CRUD for to-do items (secured)  |
 
 ---
 
