@@ -19,7 +19,7 @@ public class SecurityConfig {
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwkSetUri("http://localhost:8081/oauth2/jwks"))
+                        .jwt(jwt -> jwt.jwkSetUri("http://localhost:8083/oauth2/jwks"))
                 )
                 .build();
     }
