@@ -24,9 +24,9 @@ public class TodoListController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getMyLists(Authentication authentication) {
+    public ResponseEntity<?> getMyListsTitle(Authentication authentication) {
         String username = authentication.getName();
-        return ResponseEntity.ok(toDoListService.getMyLists(username));
+        return ResponseEntity.ok(toDoListService.getMyListsTitle(username));
     }
 
     @PostMapping("/{listId}/members")

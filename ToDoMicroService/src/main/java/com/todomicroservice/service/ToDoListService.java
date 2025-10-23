@@ -22,8 +22,8 @@ public class ToDoListService {
         return toDoListRepository.save(list);
     }
 
-    public List<ToDoList> getMyLists(String username) {
-        return toDoListRepository.findAllByMembersContaining(username);
+    public List<String> getMyListsTitle(String username) {
+        return toDoListRepository.findTitlesByMember(username);
     }
 
     public void addMember(Long listId, String memberUsername, String currentUsername) throws AccessDeniedException {
