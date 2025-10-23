@@ -45,14 +45,16 @@ class ToDoListServiceTest {
 
     @Test
     void getMyLists_ShouldReturnLists() {
-        ToDoList list = new ToDoList();
-        when(toDoListRepository.findAllByMembersContaining("username"))
-                .thenReturn(List.of(list));
+        List<String> mockTitles = List.of("List1", "List2");
 
-        List<ToDoList> result = toDoListService.getMyLists("username");
+        when(toDoListRepository.findTitlesByMember("username"))
+                .thenReturn(mockTitles);
 
-        assertEquals(1, result.size());
-        verify(toDoListRepository).findAllByMembersContaining("username");
+        List<String> result = toDoListService.getMyListsTitle("username");
+
+        assertEquals(2, result.size());
+        assertEquals("List1", result.get(0));
+        verify(toDoListRepository).findTitlesByMember("username");
     }
 
     @Test
