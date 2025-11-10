@@ -24,36 +24,53 @@ public class ToDoService {
         this.toDoListService = toDoListService;
     }
 
-    public void createToDo(String username, Long listId, ToDoRequestDto toDoRequestDto) {
+    public void createToDo(String username, Long listId, ToDoRequestDto dto) {
         ToDoList toDoList = toDoListService.getAuthorizedListById(listId, username);
 
-        ToDo toDo = toDoConverterService.convertToToDo(username, toDoRequestDto);
-        toDo.setToDoList(toDoList);
+        ToDo todo = toDoConverterService.convertToToDo(username, dto);
+        todo.setToDoList(toDoList);
 
-        toDoRepository.save(toDo);
+        if (dto.getIntervalDays() != null && dto.getIntervalDays() > 0) {
+            todo.setLastDoneDate(LocalDate.now());
+            todo.setNextDueDate(LocalDate.now().plusDays(dto.getIntervalDays()));
+        }
+
+        toDoRepository.save(todo);
     }
 
     public List<ToDoResponseDto> getAllToDos(String username, Long listId) {
         ToDoList toDoList = toDoListService.getAuthorizedListById(listId, username);
-
         return toDoList.getToDos().stream()
                 .map(toDoConverterService::convertToResponse)
                 .collect(Collectors.toList());
     }
 
-    public ToDoResponseDto updateToDo(String username, Long listId, Long toDoId, ToDoRequestDto toDoRequestDto) {
+    public ToDoResponseDto updateToDo(String username, Long listId, Long toDoId, ToDoRequestDto dto) {
         ToDoList toDoList = toDoListService.getAuthorizedListById(listId, username);
 
-        ToDo toDo = toDoRepository.findById(toDoId)
+        ToDo todo = toDoRepository.findById(toDoId)
                 .filter(t -> t.getToDoList().getId().equals(toDoList.getId()))
                 .orElseThrow(() -> new RuntimeException("ToDo not found or access denied"));
 
-        toDo.setTitle(toDoRequestDto.getTitle());
-        toDo.setCompleted(toDoRequestDto.isCompleted());
-        toDo.setUpdatedDate(toDoRequestDto.getDate());
+        todo.setTitle(dto.getTitle());
+        todo.setCompleted(dto.isCompleted());
+        todo.setNotifyUser(dto.isNotifyUser());
+        todo.setIntervalDays(dto.getIntervalDays());
+        todo.setLastDoneDate(dto.getLastDoneDate());
 
-        toDoRepository.save(toDo);
-        return toDoConverterService.convertToResponse(toDo);
+        if (dto.isCompleted()) {
+            LocalDate doneDate = LocalDate.now();
+            todo.setLastDoneDate(doneDate);
+
+            if (todo.getIntervalDays() != null && todo.getIntervalDays() > 0) {
+                todo.setNextDueDate(doneDate.plusDays(todo.getIntervalDays()));
+            } else {
+                todo.setNextDueDate(null);
+            }
+        }
+
+        toDoRepository.save(todo);
+        return toDoConverterService.convertToResponse(todo);
     }
 
     public void deleteToDo(String username, Long listId, Long toDoId) {

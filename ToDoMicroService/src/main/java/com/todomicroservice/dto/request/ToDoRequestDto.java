@@ -10,5 +10,9 @@ import java.time.LocalDate;
 public class ToDoRequestDto {
     private String title;
     private boolean completed;
-    private LocalDate date;
+    private LocalDate startDate;
+    private LocalDate lastDoneDate;
+    private Integer intervalDays;
+    private LocalDate nextDueDate;
+    private boolean notifyUser;
 }
