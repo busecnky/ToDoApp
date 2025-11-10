@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +53,9 @@ class ToDoServiceTest {
         requestDto = new ToDoRequestDto();
         requestDto.setTitle("Updated Title");
         requestDto.setCompleted(true);
-        requestDto.setDate(LocalDate.parse("2025-09-02"));
+        requestDto.setNotifyUser(true);
+        requestDto.setIntervalDays(10);
+        requestDto.setLastDoneDate(LocalDate.of(2025, 9, 2));
 
         responseDto = new ToDoResponseDto();
         responseDto.setId(TODO_ID);
@@ -60,7 +63,7 @@ class ToDoServiceTest {
     }
 
     @Test
-    void createToDo_ShouldSaveToRepository() {
+    void createToDo_ShouldSaveToRepository_WithNextDueDate() {
         when(toDoListService.getAuthorizedListById(LIST_ID, USERNAME)).thenReturn(toDoList);
         when(toDoConverterService.convertToToDo(USERNAME, requestDto)).thenReturn(toDo);
 
@@ -71,11 +74,28 @@ class ToDoServiceTest {
 
         ToDo saved = captor.getValue();
         assertEquals(LIST_ID, saved.getToDoList().getId());
+        assertNotNull(saved.getLastDoneDate());
+        assertEquals(saved.getNextDueDate(), saved.getLastDoneDate().plusDays(requestDto.getIntervalDays()));
+    }
+
+    @Test
+    void createToDo_ShouldNotSetNextDueDate_WhenIntervalNull() {
+        requestDto.setIntervalDays(null);
+        when(toDoListService.getAuthorizedListById(LIST_ID, USERNAME)).thenReturn(toDoList);
+        when(toDoConverterService.convertToToDo(USERNAME, requestDto)).thenReturn(toDo);
+
+        toDoService.createToDo(USERNAME, LIST_ID, requestDto);
+
+        ArgumentCaptor<ToDo> captor = ArgumentCaptor.forClass(ToDo.class);
+        verify(toDoRepository).save(captor.capture());
+
+        ToDo saved = captor.getValue();
+        assertNull(saved.getNextDueDate());
     }
 
     @Test
     void getAllToDos_ShouldReturnListOfResponses() {
-        toDoList.setToDos(Arrays.asList(toDo));
+        toDoList.setToDos(Collections.singletonList(toDo));
         when(toDoListService.getAuthorizedListById(LIST_ID, USERNAME)).thenReturn(toDoList);
         when(toDoConverterService.convertToResponse(toDo)).thenReturn(responseDto);
 
@@ -86,7 +106,7 @@ class ToDoServiceTest {
     }
 
     @Test
-    void updateToDo_ShouldUpdateAndReturnResponse() {
+    void updateToDo_ShouldUpdateAndReturnResponse_WithNextDueDate() {
         when(toDoListService.getAuthorizedListById(LIST_ID, USERNAME)).thenReturn(toDoList);
         when(toDoRepository.findById(TODO_ID)).thenReturn(Optional.of(toDo));
         when(toDoConverterService.convertToResponse(toDo)).thenReturn(responseDto);
@@ -95,8 +115,23 @@ class ToDoServiceTest {
 
         assertEquals("Updated Title", result.getTitle());
         assertTrue(toDo.isCompleted());
-        assertEquals(LocalDate.parse("2025-09-02"), toDo.getUpdatedDate());
+        assertEquals(requestDto.getIntervalDays(), toDo.getIntervalDays());
+        assertNotNull(toDo.getLastDoneDate());
+        assertEquals(toDo.getNextDueDate(), toDo.getLastDoneDate().plusDays(requestDto.getIntervalDays()));
         verify(toDoRepository).save(toDo);
+    }
+
+    @Test
+    void updateToDo_ShouldClearNextDueDate_WhenNoInterval() {
+        requestDto.setCompleted(true);
+        requestDto.setIntervalDays(null);
+        when(toDoListService.getAuthorizedListById(LIST_ID, USERNAME)).thenReturn(toDoList);
+        when(toDoRepository.findById(TODO_ID)).thenReturn(Optional.of(toDo));
+        when(toDoConverterService.convertToResponse(toDo)).thenReturn(responseDto);
+
+        toDoService.updateToDo(USERNAME, LIST_ID, TODO_ID, requestDto);
+
+        assertNull(toDo.getNextDueDate());
     }
 
     @Test

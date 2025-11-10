@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ToDoConverterServiceTest {
 
@@ -20,56 +20,65 @@ class ToDoConverterServiceTest {
     }
 
     @Test
-    void convertToToDo_ShouldMapAllFields_WhenDateIsProvided() {
+    void convertToToDo_shouldMapAllFieldsCorrectly_whenIntervalDaysPresent() {
         ToDoRequestDto dto = new ToDoRequestDto();
-        dto.setTitle("List");
-        dto.setCompleted(true);
-        dto.setDate(LocalDate.of(2025, 10, 23));
-
-        String username = "username";
-
-        ToDo result = converterService.convertToToDo(username, dto);
-
-        assertNotNull(result);
-        assertEquals("username", result.getUsername());
-        assertEquals("List", result.getTitle());
-        assertTrue(result.isCompleted());
-        assertEquals(LocalDate.of(2025, 10, 23), result.getCreatedDate());
-    }
-
-    @Test
-    void convertToToDo_ShouldUseCurrentDate_WhenDateIsNull() {
-        ToDoRequestDto dto = new ToDoRequestDto();
-        dto.setTitle("List");
+        dto.setTitle("Change car oil");
         dto.setCompleted(false);
-        dto.setDate(null);
+        dto.setStartDate(LocalDate.of(2025, 1, 1));
+        dto.setNotifyUser(true);
+        dto.setIntervalDays(90);
+        dto.setLastDoneDate(LocalDate.of(2025, 1, 1));
 
-        String username = "username";
+        ToDo toDo = converterService.convertToToDo("username", dto);
 
-        ToDo result = converterService.convertToToDo(username, dto);
-
-        assertNotNull(result);
-        assertEquals("List", result.getTitle());
-        assertEquals("username", result.getUsername());
-        assertFalse(result.isCompleted());
-        assertEquals(LocalDate.now(), result.getCreatedDate());
+        assertThat(toDo.getUsername()).isEqualTo("username");
+        assertThat(toDo.getTitle()).isEqualTo("Change car oil");
+        assertThat(toDo.isCompleted()).isFalse();
+        assertThat(toDo.isNotifyUser()).isTrue();
+        assertThat(toDo.getIntervalDays()).isEqualTo(90);
+        assertThat(toDo.getLastDoneDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(toDo.getNextDueDate()).isEqualTo(LocalDate.of(2025, 4, 1)); // +90 gün
     }
 
     @Test
-    void convertToResponse_ShouldMapAllFieldsCorrectly() {
+    void convertToToDo_shouldHandleNullIntervalDaysGracefully() {
+        ToDoRequestDto dto = new ToDoRequestDto();
+        dto.setTitle("Dentist visit");
+        dto.setCompleted(false);
+        dto.setNotifyUser(false);
+        dto.setIntervalDays(null);
+        dto.setLastDoneDate(null);
+
+        ToDo toDo = converterService.convertToToDo("username", dto);
+
+        assertThat(toDo.getTitle()).isEqualTo("Dentist visit");
+        assertThat(toDo.getCreatedDate()).isNotNull();
+        assertThat(toDo.getNextDueDate()).isNull();
+    }
+
+    @Test
+    void convertToResponse_shouldReturnMatchingDto() {
         ToDo toDo = new ToDo();
-        toDo.setId(10L);
-        toDo.setTitle("List");
-        toDo.setCompleted(true);
+        toDo.setId(1L);
         toDo.setUsername("username");
+        toDo.setTitle("Water plants");
+        toDo.setCompleted(true);
+        toDo.setCreatedDate(LocalDate.of(2025, 1, 1));
+        toDo.setLastDoneDate(LocalDate.of(2025, 1, 2));
+        toDo.setIntervalDays(3);
+        toDo.setNextDueDate(LocalDate.of(2025, 1, 5));
+        toDo.setNotifyUser(true);
 
         ToDoResponseDto response = converterService.convertToResponse(toDo);
 
-        assertNotNull(response);
-        assertEquals(10L, response.getId());
-        assertEquals("List", response.getTitle());
-        assertTrue(response.isCompleted());
-        assertEquals("username", response.getUsername());
+        assertThat(response.getId()).isEqualTo(1L);
+        assertThat(response.getUsername()).isEqualTo("username");
+        assertThat(response.getTitle()).isEqualTo("Water plants");
+        assertThat(response.isCompleted()).isTrue();
+        assertThat(response.getCreatedDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(response.getLastDoneDate()).isEqualTo(LocalDate.of(2025, 1, 2));
+        assertThat(response.getNextDueDate()).isEqualTo(LocalDate.of(2025, 1, 5));
+        assertThat(response.getIntervalDays()).isEqualTo(3);
+        assertThat(response.isNotifyUser()).isTrue();
     }
 }
-
