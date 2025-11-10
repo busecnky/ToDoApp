@@ -15,6 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "todolist", schema = "todos_service")
 public class ToDoList {
 
     @Id
@@ -26,6 +27,12 @@ public class ToDoList {
     private LocalDate date;
 
     @ElementCollection
+    @CollectionTable(
+            name = "todo_list_members",
+            schema = "todos_service",
+            joinColumns = @JoinColumn(name = "todo_list_id")
+    )
+    @Column(name = "member_username")
     private Set<String> members = new HashSet<>();
 
     @OneToMany(mappedBy = "toDoList", cascade = CascadeType.ALL, orphanRemoval = true)
