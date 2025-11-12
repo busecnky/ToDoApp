@@ -25,6 +25,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String username;
     private String password;
+    private String email;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
